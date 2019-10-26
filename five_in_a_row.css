@@ -1,0 +1,63 @@
+*{
+	margin: 0;
+}
+
+.field {
+	width: 1200px;
+	display: flex;
+	flex-wrap: wrap;
+	cursor: pointer;
+	margin: 12px auto 0px auto;
+}
+
+.cell {
+	width: 20px;
+	height: 20px;
+	outline: 1px solid lightblue;
+	text-align: center;
+	font-size: 25px;
+	line-height: 15px;
+}
+
+.cross {
+	color: red;
+}
+
+.zero {
+	color: green;
+}
+
+.curtains {
+	position: fixed;
+	width: 100%;
+	height: 100vh;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.hidden {
+	display: none;
+}
+
+.window {
+	background: white;
+	width: 50%;
+	height: 50%;
+	position: relative;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: 30px;
+}
+
+.close {
+	width: 20px;
+	height: 20px;
+	position: absolute;
+	top: 2px;
+	right: 0;
+	cursor: pointer;
+	font-size: 18px;
+	text-align: center;
+}

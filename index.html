@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ru">
+	<head>
+		<title>Test</title>
+		<meta charset="utf-8">
+		<link rel="stylesheet" href="five_in_a_row.css">
+		<style>
+		</style>
+	</head>
+	<body>
+		<div class="wrapper">
+			<div class="curtains hidden">
+				<div class="window">
+					<p class="text"></p>
+					<div class="close">X</div>
+				</div>
+			</div>
+			<div class="field"></div>
+		</div>
+
+		<script>
+			(function () {
+				let wrapper = document.querySelector('.wrapper');
+				let field = wrapper.querySelector('.field');
+				let close = wrapper.querySelector('.close');
+
+				let player1 = 'x';
+				let player2 = 'o';
+
+				let i = 0;
+
+				initGame();
+
+				function joinEvent(arr) {
+					for (let elem of arr) {
+						elem.addEventListener('click', game);
+					}
+				}
+
+				function initGame() {
+					getCell(1800);
+
+					let cells = field.querySelectorAll('.cell');
+
+					joinEvent(cells);
+				}
+
+				function game() {
+					let divs = field.querySelectorAll('.cell');
+					let self = this;
+
+					getPlayer(self);
+					descoverWinner(getGorizantalCells(self, divs ,4), 'cross', player1, player2);
+					descoverWinner(getVerticAndDiagCells(self, divs, 236, 59), 'cross', player1, player2);
+					descoverWinner(getVerticAndDiagCells(self, divs, 240, 60), 'cross', player1, player2);
+					descoverWinner(getVerticAndDiagCells(self, divs, 244, 61), 'cross', player1, player2);
+					descoverWinner(getGorizantalCells(self, divs ,4), 'zero', player1, player2);
+					descoverWinner(getVerticAndDiagCells(self, divs, 236, 59), 'zero', player1, player2);
+					descoverWinner(getVerticAndDiagCells(self, divs, 240, 60), 'zero', player1, player2);
+					descoverWinner(getVerticAndDiagCells(self, divs, 244, 61), 'zero', player1, player2);
+
+				}
+
+				function descoverWinner(arr, className, player1, player2) {
+					for (let i = 0, j = 0; i < arr.length; i++) {
+						if (arr[i].classList.contains(className)) {
+							j++;
+							if (j == 5) {
+								showScreensaver(className, player1, player2);
+								break;
+							}
+						}
+					}
+				}
+
+				function getVerticAndDiagCells(self, arr, span, step) {
+					let result = [];
+
+					let index = self.data - span;
+
+					if (index < 0) {
+						index = span - Math.abs(self.data - span);
+					}
+					
+					for (let i = index; i <= self.data + span; i = i + step) {
+						result.push(arr[i]);
+					}
+					return result;
+				}
+
+				function getGorizantalCells(self, arr, step) {
+					let result = [];
+
+					for (let i = getIndex(self, step); i <= self.data + step; i++) {
+						result.push(arr[i]);
+					}
+
+					return result;
+				}
+
+				function getIndex(self, step) {
+					let index = self.data - step;
+
+					if (index < 0 && step == 4) {
+						index = 0
+					}
+					return index;
+				}
+
+				function getPlayer(self) {
+
+					if (self.innerHTML == '') {
+						i++;
+
+						if (i == 1) {
+							self.innerHTML = player1;
+							self.classList.add('cross');
+						} else if (i == 2) {
+							self.innerHTML = player2;
+							self.classList.add('zero');
+							i = 0;
+						}
+					}
+				}
+
+				function getCell(quantity) {
+					for (let i = 0; i < quantity; i++) {
+						let div = document.createElement('div');
+						div.className = 'cell';
+						div.data = i;
+						field.appendChild(div);
+					}
+				}
+
+				function showScreensaver(className, player1, player2) {
+					let cirtans = wrapper.querySelector('.cirtans');
+					let text = wrapper.querySelector('.text');
+
+					cirtans.classList.remove('hidden');
+
+					className == 'cross'? text.innerHTML = 'Выиграли крестики!!!' : text.innerHTML = 'Выиграли нолики!!!';
+				}
+
+				close.addEventListener('click', () => {
+					close.parentElement.parentElement.classList.add('hidden');
+					field.innerHTML = '';
+					initGame();
+					i = 0;
+				});
+			})();
+		</script>
+	</body>
+</html>
