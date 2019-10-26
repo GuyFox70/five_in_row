@@ -24,12 +24,21 @@
 				let field = wrapper.querySelector('.field');
 				let close = wrapper.querySelector('.close');
 
+				/*Переделал, теперь игру можно регулировать двумя параметрами, конечно при условии,
+				что ячейки будут занимать все поле игры. quantityCells - количество ячеек,
+				rowWin - количество ячеек определяющие победу.*/
+
+				let rowWin = 4;
+				let quantityCells = 1800;
+
 				let player1 = 'x';
 				let player2 = 'o';
 
 				let i = 0;
 
 				initGame();
+
+				let [widthCell, widthField] = getStyleWidth(field);
 
 				function joinEvent(arr) {
 					for (let elem of arr) {
@@ -38,34 +47,55 @@
 				}
 
 				function initGame() {
-					getCell(1800);
+					getCell(quantityCells);
 
 					let cells = field.querySelectorAll('.cell');
 
 					joinEvent(cells);
 				}
 
-				function game() {
-					let divs = field.querySelectorAll('.cell');
-					let self = this;
+				function getStyleWidth(field) {
+					let styleParent = getComputedStyle(field);
+					let styleElement = getComputedStyle(field.firstElementChild);
 
-					getPlayer(self);
-					descoverWinner(getGorizantalCells(self, divs ,4), 'cross', player1, player2);
-					descoverWinner(getVerticAndDiagCells(self, divs, 236, 59), 'cross', player1, player2);
-					descoverWinner(getVerticAndDiagCells(self, divs, 240, 60), 'cross', player1, player2);
-					descoverWinner(getVerticAndDiagCells(self, divs, 244, 61), 'cross', player1, player2);
-					descoverWinner(getGorizantalCells(self, divs ,4), 'zero', player1, player2);
-					descoverWinner(getVerticAndDiagCells(self, divs, 236, 59), 'zero', player1, player2);
-					descoverWinner(getVerticAndDiagCells(self, divs, 240, 60), 'zero', player1, player2);
-					descoverWinner(getVerticAndDiagCells(self, divs, 244, 61), 'zero', player1, player2);
+					let widthCell = parseInt(styleElement.width);
+					let widthField = parseInt(styleParent.width);
 
+					return [widthCell ,widthField];
 				}
 
-				function descoverWinner(arr, className, player1, player2) {
+				function getStep(self, stepWin) {
+					let stepTopAndDown = Math.floor(widthField / widthCell);
+					let lengthOneDiagonal = (stepTopAndDown + 1) * stepWin;
+					let lengthTwoDiagonal = (stepTopAndDown - 1) * stepWin;
+					let lengthTopAndDown = stepTopAndDown * stepWin;
+
+					return [stepTopAndDown, lengthTopAndDown, lengthOneDiagonal, lengthTwoDiagonal, stepWin];
+				}
+
+				function game() {
+					let elements = field.querySelectorAll('.cell'); 
+					let self = this;
+					let [stepTopAndDown, lengthTopAndDown, lengthOneDiagonal, lengthTwoDiagonal, stepWin] = getStep(self, rowWin);
+
+					getPlayer(self);
+
+					discoverWinner(getHorizontalCells(self, elements, stepWin), 'cross', player1, player2);
+					discoverWinner(getVerticalAndDiagCells(self, elements, lengthTwoDiagonal, stepTopAndDown - 1), 'cross', player1, player2);
+					discoverWinner(getVerticalAndDiagCells(self, elements, lengthTopAndDown, stepTopAndDown), 'cross', player1, player2);
+					discoverWinner(getVerticalAndDiagCells(self, elements, lengthOneDiagonal, stepTopAndDown + 1), 'cross', player1, player2);
+
+					discoverWinner(getHorizontalCells(self, elements, stepWin), 'zero', player1, player2);
+					discoverWinner(getVerticalAndDiagCells(self, elements, lengthTwoDiagonal, stepTopAndDown - 1), 'zero', player1, player2);
+					discoverWinner(getVerticalAndDiagCells(self, elements, lengthTopAndDown, stepTopAndDown), 'zero', player1, player2);
+					discoverWinner(getVerticalAndDiagCells(self, elements, lengthOneDiagonal, stepTopAndDown + 1), 'zero', player1, player2);
+				}
+
+				function discoverWinner(arr, className, player1, player2) {
 					for (let i = 0, j = 0; i < arr.length; i++) {
 						if (arr[i].classList.contains(className)) {
 							j++;
-							if (j == 5) {
+							if (j == rowWin + 1) {
 								showScreensaver(className, player1, player2);
 								break;
 							}
@@ -73,25 +103,25 @@
 					}
 				}
 
-				function getVerticAndDiagCells(self, arr, span, step) {
+				function getVerticalAndDiagCells(self, arr, span, step) {
 					let result = [];
 
-					let index = self.data - span;
+					let index = +self.dataset.number - span;
 
 					if (index < 0) {
 						index = span - Math.abs(self.data - span);
 					}
 					
-					for (let i = index; i <= self.data + span; i = i + step) {
+					for (let i = index; i <= +self.dataset.number + span; i = i + step) {
 						result.push(arr[i]);
 					}
 					return result;
 				}
 
-				function getGorizantalCells(self, arr, step) {
+				function getHorizontalCells(self, arr, step) {
 					let result = [];
 
-					for (let i = getIndex(self, step); i <= self.data + step; i++) {
+					for (let i = getIndex(self, step); i <= +self.dataset.number + step; i++) {
 						result.push(arr[i]);
 					}
 
@@ -99,9 +129,9 @@
 				}
 
 				function getIndex(self, step) {
-					let index = self.data - step;
+					let index = +self.dataset.number - step;
 
-					if (index < 0 && step == 4) {
+					if (index < 0 && step == rowWin) {
 						index = 0
 					}
 					return index;
@@ -127,16 +157,16 @@
 					for (let i = 0; i < quantity; i++) {
 						let div = document.createElement('div');
 						div.className = 'cell';
-						div.data = i;
+						div.dataset.number = i;
 						field.appendChild(div);
 					}
 				}
 
 				function showScreensaver(className, player1, player2) {
-					let cirtans = wrapper.querySelector('.cirtans');
+					let curtains = wrapper.querySelector('.curtains');
 					let text = wrapper.querySelector('.text');
 
-					cirtans.classList.remove('hidden');
+					curtains.classList.remove('hidden');
 
 					className == 'cross'? text.innerHTML = 'Выиграли крестики!!!' : text.innerHTML = 'Выиграли нолики!!!';
 				}
