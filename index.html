@@ -110,6 +110,8 @@
 
 					if (index < 0) {
 						index = span - Math.abs(self.data - span);
+					} else if (+self.dataset.number + span >= arr.length) {
+						span = (arr.length - 1) - +self.dataset.number;
 					}
 					
 					for (let i = index; i <= +self.dataset.number + span; i = i + step) {
@@ -120,21 +122,18 @@
 
 				function getHorizontalCells(self, arr, step) {
 					let result = [];
-
-					for (let i = getIndex(self, step); i <= +self.dataset.number + step; i++) {
-						result.push(arr[i]);
-					}
-
-					return result;
-				}
-
-				function getIndex(self, step) {
 					let index = +self.dataset.number - step;
 
 					if (index < 0 && step == rowWin) {
 						index = 0
+					} else if (+self.dataset.number + step >= arr.length && step == rowWin) {
+						step = (arr.length - 1) - +self.dataset.number;
 					}
-					return index;
+
+					for (let i = index; i <= +self.dataset.number + step; i++) {
+						result.push(arr[i]);
+					}
+					return result;
 				}
 
 				function getPlayer(self) {
